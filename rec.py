@@ -33,8 +33,9 @@ class RecordThread(threading.Thread):
         # сохраняем в файл
         wv.write(filename, recorded_data, 96000)
         # отправляем SIGINT чтобы сбросить input в главном потоке
-        signal.signal(signal.SIGALRM, lambda x: x)
-        os.kill(os.getpid(), signal.SIGINT)
+        signal.signal(signal.SIGALRM, lambda : print("Stopped by timeout"))
+        signal.alarm(2)
+        #os.kill(os.getpid(), signal.SIGINT)
         time.sleep(1)
 
     # Функция для преобразования float32 в pcm массива numpy.
@@ -82,6 +83,6 @@ if __name__ == "__main__":
         print("Stopping record...", end="")
         print("Recorded time {0}".format(time.time() - stime))
         time.sleep(1)
-    except KeyboardInterrupt:
+    except:
         print("Recorded time {0}".format(time.time() - stime))
 
