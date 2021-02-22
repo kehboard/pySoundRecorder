@@ -34,6 +34,7 @@ class RecordThread(threading.Thread):
         wv.write(filename, recorded_data, 96000)
         # отправляем SIGINT чтобы сбросить input в главном потоке
         os.kill(os.getpid(), signal.SIGINT)
+        time.sleep(1)
 
     # Функция для преобразования float32 в pcm массива numpy.
     # Взята с https://github.com/mgeier/python-audio/blob/master/audio-files/utility.py
