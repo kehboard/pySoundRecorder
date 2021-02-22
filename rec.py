@@ -33,6 +33,7 @@ class RecordThread(threading.Thread):
         # сохраняем в файл
         wv.write(filename, recorded_data, 96000)
         # отправляем SIGINT чтобы сбросить input в главном потоке
+        signal.signal(signal.SIGALRM, lambda x: x)
         os.kill(os.getpid(), signal.SIGINT)
         time.sleep(1)
 
