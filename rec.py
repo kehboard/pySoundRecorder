@@ -74,6 +74,7 @@ if __name__ == "__main__":
     stime = time.time()  # получаем время когда начали запись
     try:
         t = RecordThread(default_mic, default_speaker, filename, stop_event)
+        t.daemon = True
         t.start()  # запускаем поток для начала записи
         input("Press Enter to stop recording")
         stop_event.set()  # отдаем команду остановки записи
