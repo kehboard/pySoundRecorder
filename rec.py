@@ -32,10 +32,9 @@ class RecordThread(threading.Thread):
         recorded_data = self.float2pcm(recorded_data)
         # сохраняем в файл
         wv.write(filename, recorded_data, 96000)
-        # отправляем SIGINT чтобы сбросить input в главном потоке
+        # отправляем SIGALRM чтобы сбросить input в главном потоке
         signal.signal(signal.SIGALRM, lambda : print("Stopped by timeout"))
         signal.alarm(2)
-        #os.kill(os.getpid(), signal.SIGINT)
         time.sleep(1)
 
     # Функция для преобразования float32 в pcm массива numpy.
