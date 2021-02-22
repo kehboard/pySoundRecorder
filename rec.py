@@ -68,11 +68,12 @@ if __name__ == "__main__":
     default_mic = sc.default_microphone()  # Получаем текущий микрофон по умолчанию в системе
     stop_event = threading.Event()  # Event для того чтобы остановить поток который записывает аудио
 
-    t = RecordThread(default_mic, default_speaker, filename, stop_event)
+
     print("file: {0}".format(filename))
     input("Press Enter to start recording")
     stime = time.time()  # получаем время когда начали запись
     try:
+        t = RecordThread(default_mic, default_speaker, filename, stop_event)
         t.start()  # запускаем поток для начала записи
         input("Press Enter to stop recording")
         stop_event.set()  # отдаем команду остановки записи
