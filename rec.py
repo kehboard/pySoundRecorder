@@ -22,31 +22,30 @@ class RecordThread(threading.Thread):
             start_record_time = time.time()  # получаем время когда начали запись
             while time.time() - start_record_time < 60:
                 data = mic.record()  # получаем те данные которые есть сейчас без буфферизации
-                recorded_data = np.append(recorded_data, data)  # дописываем данные в массив
                 sp.play(data)  # проигрываем записанные данные в динамик
+                recorded_data = np.append(recorded_data, data)  # дописываем данные в массив
                 if stop_event.isSet() and time.time() - start_record_time >= 5:  # если пользователь прервал запись
-                    break  # и время записи больше чем 5 секунд то прерываем цикл
+                    recorded_data *= 2  # усиливаем записанное аудио в 2 раза
+                    # т.к библиотека soundcard пишет в float32 а некоторые плееры не умеют воспроизводить .wav
+                    # записанный в таком формате нам надо преобразовать float32 в int16
+                    print(recorded_data.dtype)
+                    recorded_data = self.float2pcm(recorded_data)
+                    # сохраняем в файл
+                    wv.write(filename, recorded_data, 96000)
+                    return  # и время записи больше чем 5 секунд то прерываем цикл
         recorded_data *= 2  # усиливаем записанное аудио в 2 раза
         # т.к библиотека soundcard пишет в float32 а некоторые плееры не умеют воспроизводить .wav
         # записанный в таком формате нам надо преобразовать float32 в int16
-        recorded_data = self.float2pcm(recorded_data)
+        recorded_data = self.float2pcm(recorded_data,"int16")
         # сохраняем в файл
         wv.write(filename, recorded_data, 96000)
-        # отправляем SIGALRM чтобы сбросить input в главном потоке
-        signal.signal(signal.SIGALRM, lambda : print("Stopped by timeout"))
-        signal.alarm(2)
-        time.sleep(1)
+        # шлем SIGINT чтобы сбросить input()
+        os.kill(os.getpid(), signal.SIGINT)
 
     # Функция для преобразования float32 в pcm массива numpy.
     # Взята с https://github.com/mgeier/python-audio/blob/master/audio-files/utility.py
     def float2pcm(self, sig, dtype='int16'):
         sig = np.asarray(sig)
-        if sig.dtype.kind != 'f':
-            raise TypeError("'sig' must be a float array")
-        dtype = np.dtype(dtype)
-        if dtype.kind not in 'iu':
-            raise TypeError("'dtype' must be an integer type")
-
         i = np.iinfo(dtype)
         abs_max = 2 ** (i.bits - 1)
         offset = i.min + abs_max
@@ -75,7 +74,7 @@ if __name__ == "__main__":
     stime = time.time()  # получаем время когда начали запись
     try:
         t = RecordThread(default_mic, default_speaker, filename, stop_event)
-        t.daemon = True
+        #t.daemon = True
         t.start()  # запускаем поток для начала записи
         input("Press Enter to stop recording")
         stop_event.set()  # отдаем команду остановки записи
