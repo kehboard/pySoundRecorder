@@ -85,5 +85,5 @@ if __name__ == "__main__":
         print("Recorded time {0} sec".format(duration))
         time.sleep(1)
     except:
-        print("Recorded time 60 sec")
+        print("\nStopped by timeout. Recorded time 60 sec")
 
