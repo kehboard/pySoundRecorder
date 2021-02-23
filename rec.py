@@ -28,7 +28,6 @@ class RecordThread(threading.Thread):
                     recorded_data *= 2  # усиливаем записанное аудио в 2 раза
                     # т.к библиотека soundcard пишет в float32 а некоторые плееры не умеют воспроизводить .wav
                     # записанный в таком формате нам надо преобразовать float32 в int16
-                    print(recorded_data.dtype)
                     recorded_data = self.float2pcm(recorded_data)
                     # сохраняем в файл
                     wv.write(filename, recorded_data, 96000)
@@ -79,8 +78,12 @@ if __name__ == "__main__":
         input("Press Enter to stop recording")
         stop_event.set()  # отдаем команду остановки записи
         print("Stopping record...", end="")
-        print("Recorded time {0}".format(time.time() - stime))
+        duration = time.time() - stime
+        if (duration < 5):
+            t.join()
+            duration = 5
+        print("Recorded time {0} sec".format(duration))
         time.sleep(1)
     except:
-        print("Recorded time {0}".format(time.time() - stime))
+        print("Recorded time 60 sec")
 
