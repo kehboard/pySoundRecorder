@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import soundcard as sc
-import sounddevice as sd
 import threading
 import time
 import argparse
