@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import soundcard as sc
+import sounddevice as sd
 import threading
 import time
 import argparse
@@ -21,13 +22,14 @@ class RecordThread(threading.Thread):
     def run(self):
         recorded_data = []
         # recorded_data = np.empty((0, 2), np.float32)  # создаем массив в котором будет хранится запись с микрофона
-        with self.use_mic.recorder(samplerate=48000) as mic, \
+        with self.use_mic.recorder(samplerate=48000,blocksize=1) as mic, \
                 self.use_speaker.player(
-                    samplerate=48000) as sp:  # получаем объекты Recorder и Player для записи и проигывания аудио
+                    samplerate=48000,blocksize=1) as sp:  # получаем объекты Recorder и Player для записи и проигывания аудио
             start_record_time = time.time()  # получаем время когда начали запись
             while time.time() - start_record_time < 60:
-                data = mic.record()  # получаем те данные которые есть сейчас без буфферизации
+                data = mic.record(numframes=None)  # получаем те данные которые есть сейчас без буфферизации
                 sp.play(data)  # проигрываем записанные данные в динамик
+                mic.flush()
                 # recorded_data = np.append(recorded_data, data)  # дописываем данные в массив
                 recorded_data += np.ndarray.tolist(data)
                 self.dur = time.time() - start_record_time
